@@ -1,26 +1,13 @@
 import yfinance as yf
-import yaml
 from dotenv import load_dotenv
 import pandas as pd
 import time
-import logging
 from pathlib import Path
+from utils import setup_logger, load_config
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logs_folder = Path("logs")
-logs_folder.mkdir(parents=True, exist_ok=True)
-stream_handler = logging.StreamHandler()
-file_handler = logging.FileHandler(logs_folder / "ingestion.log")
-logger.addHandler(stream_handler)
-logger.addHandler(file_handler)
-
+logger = setup_logger()
 
 load_dotenv()
-
-def load_config():
-    with open("config/tickers.yaml","r") as f:
-        return yaml.safe_load(f)
     
 def main():
     config = load_config()

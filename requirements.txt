@@ -4,3 +4,4 @@ pyarrow
 requests
 python-dotenv
 pyyaml
+edgartools

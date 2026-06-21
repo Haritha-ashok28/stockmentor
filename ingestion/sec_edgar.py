@@ -1,4 +1,5 @@
 import os
+import re
 import time
 from utils import setup_logger, load_config
 logger = setup_logger()
@@ -50,8 +51,7 @@ def save_to_parquet(ticker_symbol, income, balance, cash):
             )
             df_long['year'] = (
                 df_long['fiscal_year']
-                .str.split()
-                .str[1]
+                .str.extract(r'(\d{4})')[0]
                 .astype(int)
             )
 

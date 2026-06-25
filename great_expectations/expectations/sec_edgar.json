@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "id": "f5c0e961-f702-4c34-999f-aa0a71df434e",
+      "kwargs": {
+        "column": "label"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "9b624ab3-a969-4d2d-b871-7104e97663e5",
+      "kwargs": {
+        "column": "confidence",
+        "max_value": 1.0,
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "ad7a39ed-ddce-4d48-b00d-63f41ac1af21",
+      "kwargs": {
+        "column": "value",
+        "mostly": 0.8
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    }
+  ],
+  "id": "6ea180ab-f3f3-40b6-bb3e-7e8507124c57",
+  "meta": {
+    "great_expectations_version": "1.18.1"
+  },
+  "name": "sec_edgar",
+  "notes": null
+}

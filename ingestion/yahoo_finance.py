@@ -1,9 +1,16 @@
+import sys
 import yfinance as yf
 from dotenv import load_dotenv
 import pandas as pd
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# Allow imports from great_expectations/ folder
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
+from validate import build_context, validate_source
+from quarantine import write_to_quarantine
+
 from utils import setup_logger, load_config
 
 logger = setup_logger()
@@ -25,22 +32,50 @@ def get_last_saved_date(ticker_symbol):
         if not df.empty:
             dates.append(df.index.max())
     return max(dates) if dates else None
-    
+
 def main():
     config = load_config()
     tickers = config["tickers"]
     logger.info(f"Starting ingestion for {len(tickers)} tickers")
+
+    gx_context = build_context()
+
     successful = []
+    quarantined = []
+
     for ticker_symbol in tickers:
         try:
             hist, info = fetch_stock_data(ticker_symbol)
             save_price_history(hist, ticker_symbol)
             save_company_info(info, ticker_symbol)
+
+            # Validate price history
+            if not hist.empty:
+                trading_date = hist.index.max().date()
+                passed, bad_rows = validate_source(
+                    gx_context, "yahoo_finance", hist, ticker_symbol
+                )
+                if not passed:
+                    write_to_quarantine(bad_rows, "yahoo_finance", ticker_symbol, trading_date)
+                    logger.warning(f"{ticker_symbol} failed validation — bad rows quarantined")
+                    quarantined.append(ticker_symbol)
+                    continue
+
+            # Validate company info — always a daily snapshot, use today's date
+            passed, bad_rows = validate_source(gx_context, "company_info", info, ticker_symbol)
+            if not passed:
+                write_to_quarantine(bad_rows, "company_info", ticker_symbol, datetime.now().date())
+                logger.warning(f"{ticker_symbol} company_info failed validation — bad rows quarantined")
+                quarantined.append(ticker_symbol)
+                continue
+
             logger.info(f"ingestion for {ticker_symbol} was successful")
             successful.append(ticker_symbol)
+
         except Exception as e:
             logger.error(f"{ticker_symbol} ingestion failed due to {e}")
-    logger.info(f"Ingestion complete: {len(successful)}/{len(tickers)} tickers successful")
+
+    logger.info(f"Ingestion complete: {len(successful)}/{len(tickers)} successful, {len(quarantined)} quarantined")
 
 
 def fetch_stock_data(ticker_symbol, retries=3, delay=10):
@@ -58,7 +93,7 @@ def fetch_stock_data(ticker_symbol, retries=3, delay=10):
                     hist = pd.DataFrame()
                 else:
                     hist = ticker.history(start=start_date.strftime("%Y-%m-%d"))
-            
+
             if hist.empty and last_saved_date is not None:
                 info = ticker.info
                 break
@@ -66,17 +101,17 @@ def fetch_stock_data(ticker_symbol, retries=3, delay=10):
             if hist.empty:
                 logger.warning(f"No historical data returned for {ticker_symbol}")
                 raise ValueError(f"No historical data for {ticker_symbol}")
-            
+
             info = ticker.info
             break
 
         except Exception as e:
             logger.error(f"attempt failed due to {e}")
-            
+
             if attempt == retries - 1:
                 logger.error("all retries failed")
                 raise ValueError(f"all retries failed for {ticker_symbol}")
-            
+
             time.sleep(delay)
     return hist, pd.DataFrame([info])
 
@@ -116,4 +151,3 @@ def save_company_info(info_df, ticker_symbol):
 
 if __name__ == "__main__":
     main()
-

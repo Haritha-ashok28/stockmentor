@@ -1,0 +1,78 @@
+{
+  "expectations": [
+    {
+      "id": "2a1afc39-7f2d-4729-bbaf-b8562bccefdf",
+      "kwargs": {
+        "column": "Open",
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "389b603f-20c0-4ab8-a2eb-da2cb8eccd6e",
+      "kwargs": {
+        "column": "High",
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "8cad8b3d-2ee1-43b5-8788-fa39004285a4",
+      "kwargs": {
+        "column": "Low",
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "3eee2cc7-9af9-4657-94bb-5e63d1feecf0",
+      "kwargs": {
+        "column": "Close",
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    },
+    {
+      "id": "9aa049a0-9057-4361-8a13-9942426fb61b",
+      "kwargs": {
+        "column": "Open"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "5cfedee0-3772-4dab-974f-d4e90e93cabb",
+      "kwargs": {
+        "column": "Close"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "1769e302-f305-45bf-8357-f2e317ee3c5c",
+      "kwargs": {
+        "column": "Volume",
+        "min_value": 0.0
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    }
+  ],
+  "id": "9d5e72d6-46d1-4246-a78e-764016353b67",
+  "meta": {
+    "great_expectations_version": "1.18.1"
+  },
+  "name": "yahoo_finance",
+  "notes": null
+}

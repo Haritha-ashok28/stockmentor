@@ -1,0 +1,74 @@
+{
+  "expectations": [
+    {
+      "id": "2af0679e-b581-4c90-a503-2771e8252984",
+      "kwargs": {
+        "column": "symbol"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "079d6088-e7ce-4c29-9243-51c8d7848319",
+      "kwargs": {
+        "column": "symbol"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_unique"
+    },
+    {
+      "id": "3c41a5ac-f34b-417e-96b5-a69be99f427b",
+      "kwargs": {
+        "column": "exchange"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "276feb14-aca8-4094-a32a-3e9770e10b83",
+      "kwargs": {
+        "column": "sector"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "87b45d46-1d37-404a-afe7-b5944d63c039",
+      "kwargs": {
+        "column": "industry"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "2ed14dd8-93ed-4b0b-bdb6-90e3b093acc9",
+      "kwargs": {
+        "column": "currentPrice"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "bd79af2d-6ea8-4434-b51a-cba7da412265",
+      "kwargs": {
+        "column": "currentPrice",
+        "min_value": 0.01
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_between"
+    }
+  ],
+  "id": "ef146e92-0b47-4241-9abf-66dd2dc659b0",
+  "meta": {
+    "great_expectations_version": "1.18.1"
+  },
+  "name": "company_info",
+  "notes": null
+}

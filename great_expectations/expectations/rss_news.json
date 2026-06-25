@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "id": "9305e472-b61d-4937-9723-f1a4b9599172",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "3dcf6129-2a9f-4cc6-b816-ea38db7fd97d",
+      "kwargs": {
+        "column": "published"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_not_be_null"
+    },
+    {
+      "id": "cb67ef67-bb84-490d-ba06-1553bfd957ef",
+      "kwargs": {
+        "column": "link"
+      },
+      "meta": {},
+      "severity": "critical",
+      "type": "expect_column_values_to_be_unique"
+    }
+  ],
+  "id": "14eb4bbf-8d60-4b95-84e3-dcfdea7de360",
+  "meta": {
+    "great_expectations_version": "1.18.1"
+  },
+  "name": "rss_news",
+  "notes": null
+}

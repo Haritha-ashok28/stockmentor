@@ -1,9 +1,17 @@
 import os
+import sys
 import re
 import time
+from pathlib import Path
+from datetime import date
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
+from validate import build_context, validate_source
+from quarantine import write_to_quarantine
+
 from utils import setup_logger, load_config
 logger = setup_logger()
-from pathlib import Path
+
 from edgar import Company
 from edgar import set_identity
 name = os.getenv("EDGAR_USER_NAME")
@@ -55,7 +63,7 @@ def save_to_parquet(ticker_symbol, income, balance, cash):
                 .astype(int)
             )
 
-            for (year), partition_df in df_long.groupby("year"):   
+            for (year), partition_df in df_long.groupby("year"):
                 partition_path = (
                     folder
                     /f"ticker={ticker_symbol}"
@@ -78,16 +86,49 @@ def main():
     config = load_config()
     tickers = config["tickers"]
     logger.info(f"Starting ingestion for {len(tickers)} tickers")
+
+    gx_context = build_context()
+
     successful = []
+    quarantined = []
+
     for ticker_symbol in tickers:
         try:
             income, balance, cash = fetch_financial_statements(ticker_symbol)
             save_to_parquet(ticker_symbol, income, balance, cash)
+
+            # Validate each statement independently -- all three must pass
+            # SEC filings have no meaningful trading date; use today's pipeline run date
+            trading_date = date.today()
+            ticker_passed = True
+
+            passed, bad_rows = validate_source(gx_context, "sec_edgar", income, ticker_symbol)
+            if not passed:
+                write_to_quarantine(bad_rows, "sec_edgar", ticker_symbol, trading_date)
+                ticker_passed = False
+
+            passed, bad_rows = validate_source(gx_context, "sec_edgar", balance, ticker_symbol)
+            if not passed:
+                write_to_quarantine(bad_rows, "sec_edgar", ticker_symbol, trading_date)
+                ticker_passed = False
+
+            passed, bad_rows = validate_source(gx_context, "sec_edgar", cash, ticker_symbol)
+            if not passed:
+                write_to_quarantine(bad_rows, "sec_edgar", ticker_symbol, trading_date)
+                ticker_passed = False
+
+            if not ticker_passed:
+                logger.warning(f"{ticker_symbol} failed validation -- bad rows quarantined")
+                quarantined.append(ticker_symbol)
+                continue
+
             logger.info(f"ingestion for {ticker_symbol} was successful")
             successful.append(ticker_symbol)
+
         except Exception as e:
             logger.error(f"{ticker_symbol} ingestion failed due to {e}")
-    logger.info(f"Ingestion complete: {len(successful)}/{len(tickers)} tickers successful")
+
+    logger.info(f"Ingestion complete: {len(successful)}/{len(tickers)} successful, {len(quarantined)} quarantined")
 
 if __name__ == "__main__":
     main()

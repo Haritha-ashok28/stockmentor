@@ -225,6 +225,9 @@ logs/
 
 bronze/
 
+# Great Expectations — local/sensitive files never go to git
+great_expectations/uncommitted/
+
 ingestion/test.py
 
 architecture.png 

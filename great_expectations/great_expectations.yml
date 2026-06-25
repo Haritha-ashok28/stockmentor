@@ -1,4 +1,3 @@
-
 # Welcome to Great Expectations! Always know what to expect from your data.
 #
 # Here you can define datasources, batch kwargs generators, integrations and
@@ -9,7 +8,7 @@
 
 # config_version refers to the syntactic version of this config file, and is used in maintaining backwards compatibility
 # It is auto-generated and usually does not need to be changed.
-config_version: 4
+config_version: 4.0
 
 config_variables_file_path: uncommitted/config_variables.yml
 
@@ -52,7 +51,58 @@ data_docs_sites:
     class_name: SiteBuilder
     show_how_to_buttons: true
     store_backend:
-        class_name: TupleFilesystemStoreBackend
-        base_directory: uncommitted/data_docs/local_site/
+      class_name: TupleFilesystemStoreBackend
+      base_directory: uncommitted/data_docs/local_site/
     site_index_builder:
-        class_name: DefaultSiteIndexBuilder
+      class_name: DefaultSiteIndexBuilder
+fluent_datasources:
+  yahoo_finance_ds:
+    type: pandas
+    id: afcf6829-a229-42c1-80a3-39c7d6077832
+    assets:
+      yahoo_finance_asset:
+        type: dataframe
+        id: aa9e94a1-112d-43e2-8d07-922936f1d9ef
+        batch_metadata: {}
+        batch_definitions:
+          batch:
+            id: b72cfcfc-d707-41dc-b73d-c39ac3afdbc4
+            partitioner:
+  company_info_ds:
+    type: pandas
+    id: 7ae87495-0a75-4a02-a346-08561397dc57
+    assets:
+      company_info_asset:
+        type: dataframe
+        id: 797f5568-ff94-4ae0-a893-7aaf2f1c986f
+        batch_metadata: {}
+        batch_definitions:
+          batch:
+            id: 5e4cd347-b92c-4d41-a012-17c5d41153a2
+            partitioner:
+  sec_edgar_ds:
+    type: pandas
+    id: ad3fa1ee-98ed-428b-8248-a9144d9f5100
+    assets:
+      sec_edgar_asset:
+        type: dataframe
+        id: efaf9a9a-1c9f-4c93-9fdd-5674f44eb43d
+        batch_metadata: {}
+        batch_definitions:
+          batch:
+            id: 0ad40c77-5955-40c8-8a44-0bc01a60d2c3
+            partitioner:
+  rss_news_ds:
+    type: pandas
+    id: 84598d13-e097-41c2-87eb-8cd94fd6d2ac
+    assets:
+      rss_news_asset:
+        type: dataframe
+        id: 96247899-3722-4161-aa3e-b4ae6149d7aa
+        batch_metadata: {}
+        batch_definitions:
+          batch:
+            id: 71128476-68c5-42b7-b6c0-5c21f1923a6f
+            partitioner:
+analytics_enabled:
+data_context_id: 5d1e6add-432e-4a02-913d-3f2b6aa803de

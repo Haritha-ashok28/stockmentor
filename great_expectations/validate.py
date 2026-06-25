@@ -24,16 +24,19 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BRONZE = PROJECT_ROOT / "bronze"
 
 
-def build_context() -> gx.AbstractDataContext:
+def build_context() -> FileDataContext:
     """
     Load the GE FileDataContext from great_expectations/.
     Call once at the top of each ingestion script and pass context down.
     """
-    return FileDataContext(context_root_dir=str(PROJECT_ROOT / "great_expectations"))
+    return gx.get_context(
+        mode="file",
+        context_root_dir=str(PROJECT_ROOT / "great_expectations"),
+    )
 
 
 def validate_source(
-    context: gx.AbstractDataContext,
+    context: FileDataContext,
     source_name: str,
     df: pd.DataFrame,
     ticker_symbol: str = None,

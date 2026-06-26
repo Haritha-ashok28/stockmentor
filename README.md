@@ -27,7 +27,7 @@ This is the one section updated as the project progresses, phase by phase.
 - [x] Ingestion scripts: Yahoo Finance, SEC EDGAR, RSS news
 - [x] Bronze schema and partitioning strategy
 - [x] Source profiling and known-issue documentation
-- [ ] Great Expectations validation layer
+- [x] Great Expectations validation layer
 - [ ] Airflow DAGs (3, one per source)
 - [ ] dbt silver models (cleaning, standardization, unit conversion)
 - [ ] dbt gold models (health score, KPIs, company lookup)

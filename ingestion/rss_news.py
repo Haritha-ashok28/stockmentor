@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source
+from validate import build_context, validate_source, check_freshness
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -91,6 +91,18 @@ def main():
             save_to_parquet(ticker_symbol, news_df)
 
             trading_date = pd.to_datetime(news_df["published"]).max().date()
+
+            if not check_freshness(trading_date, "rss_news", ticker_symbol, max_age_days=3):
+                write_to_quarantine(news_df.assign(
+                    failed_expectation="freshness",
+                    failed_column="published",
+                    source="rss_news",
+                    ticker=ticker_symbol,
+                    quarantined_at=pd.Timestamp.now(),
+                ), "rss_news", ticker_symbol, trading_date)
+                quarantined.append(ticker_symbol)
+                continue
+
             passed, bad_rows = validate_source(gx_context, "rss_news", news_df, ticker_symbol)
             if not passed:
                 write_to_quarantine(bad_rows, "rss_news", ticker_symbol, trading_date)

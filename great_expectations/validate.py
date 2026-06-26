@@ -12,6 +12,7 @@ Usage as standalone smoke-test:
 """
 
 from pathlib import Path
+from datetime import date
 import pandas as pd
 import great_expectations as gx
 from great_expectations.data_context import FileDataContext
@@ -84,6 +85,37 @@ def validate_source(
 
     bad_rows = _collect_bad_rows(df, result, source_name, ticker_symbol)
     return False, bad_rows
+
+
+def check_freshness(
+    max_date: date,
+    source_name: str,
+    ticker_symbol: str,
+    max_age_days: int,
+) -> bool:
+    """
+    Tier 3 freshness check — is the data recent enough to be trusted?
+
+    Parameters
+    ----------
+    max_date      : most recent date in the fetched data
+    source_name   : used for logging
+    ticker_symbol : used for logging
+    max_age_days  : how many calendar days old is acceptable (covers weekends/holidays)
+
+    Returns
+    -------
+    True if fresh, False if stale (caller should quarantine and skip)
+    """
+    days_old = (date.today() - max_date).days
+    label = f"[{source_name}][{ticker_symbol}]"
+
+    if days_old > max_age_days:
+        print(f"{label} STALE: latest data is {max_date} ({days_old} days old, max allowed: {max_age_days})")
+        return False
+
+    print(f"{label} FRESH: latest data is {max_date} ({days_old} days old)")
+    return True
 
 
 def _ensure_ohlc_expectation(suite, context):

@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Allow imports from great_expectations/ folder
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source
+from validate import build_context, validate_source, check_freshness
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -52,6 +52,18 @@ def main():
             # Validate price history
             if not hist.empty:
                 trading_date = hist.index.max().date()
+
+                if not check_freshness(trading_date, "yahoo_finance", ticker_symbol, max_age_days=3):
+                    write_to_quarantine(hist.assign(
+                        failed_expectation="freshness",
+                        failed_column="index",
+                        source="yahoo_finance",
+                        ticker=ticker_symbol,
+                        quarantined_at=pd.Timestamp.now(),
+                    ), "yahoo_finance", ticker_symbol, trading_date)
+                    quarantined.append(ticker_symbol)
+                    continue
+
                 passed, bad_rows = validate_source(
                     gx_context, "yahoo_finance", hist, ticker_symbol
                 )

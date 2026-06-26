@@ -4,9 +4,10 @@ import re
 import time
 from pathlib import Path
 from datetime import date
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source
+from validate import build_context, validate_source, check_freshness
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -93,6 +94,26 @@ def main():
             # Melt wide -> long, then validate the shape that lands in bronze
             trading_date = date.today()
             ticker_passed = True
+
+            # Freshness: most recent fiscal quarter must be within 120 days
+            # Parse actual dates from fiscal_year strings like "Mar 28, 2026 (Q2)"
+            income_long = melt_statement(income)
+            fiscal_dates = pd.to_datetime(
+                income_long["fiscal_year"].str.extract(r'^([^(]+)')[0].str.strip(),
+                errors="coerce"
+            )
+            most_recent_date = fiscal_dates.max().date()
+            if not check_freshness(most_recent_date, "sec_edgar", ticker_symbol, max_age_days=120):
+                # 120 days = ~1 quarter — catches companies that stopped filing
+                write_to_quarantine(income_long.assign(
+                    failed_expectation="freshness",
+                    failed_column="year",
+                    source="sec_edgar",
+                    ticker=ticker_symbol,
+                    quarantined_at=pd.Timestamp.now(),
+                ), "sec_edgar", ticker_symbol, trading_date)
+                quarantined.append(ticker_symbol)
+                continue
 
             statements = {
                 "income": income,

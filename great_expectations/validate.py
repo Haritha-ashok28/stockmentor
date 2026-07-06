@@ -118,6 +118,68 @@ def check_freshness(
     return True
 
 
+from pathlib import Path
+
+
+def check_partition_structure(
+    domain: str,
+    base_path: str = "bronze",
+    partition_key: str = "date",
+    delete_invalid: bool = False,
+) -> bool:
+    """
+    Check that all Parquet files in a domain follow the expected partition structure.
+
+    Args:
+        domain: Domain folder (e.g. "stock_prices", "news", "fundamentals", "options")
+        base_path: Root bronze directory.
+        partition_key: Expected partition folder name (default: "date").
+        delete_invalid: If True, delete invalid files. Defaults to False.
+
+    Returns:
+        True if all files follow the expected structure, otherwise False.
+    """
+
+    domain_path = Path(base_path) / domain
+
+    if not domain_path.exists():
+        print(f"Domain path does not exist: {domain_path}")
+        return False
+
+    bad_files = [
+        p for p in domain_path.rglob("*.parquet")
+        if f"{partition_key}=" not in str(p)
+    ]
+
+    if bad_files:
+        print(f"FAIL: Found {len(bad_files)} file(s) with an invalid partition structure:")
+
+        for f in bad_files:
+            print(f"  {f}")
+
+        if delete_invalid:
+            for f in bad_files:
+                f.unlink()
+
+            print(f"\nDeleted {len(bad_files)} invalid file(s).")
+
+            # Verify cleanup
+            bad_files = [
+                p for p in domain_path.rglob("*.parquet")
+                if f"{partition_key}=" not in str(p)
+            ]
+
+    if bad_files:
+        print("FAIL: Some invalid files still exist.")
+        return False
+
+    print(
+        f"PASS: All Parquet files in '{domain}' follow the expected "
+        f"{partition_key}-partitioned structure."
+    )
+    return True
+
+
 def _ensure_ohlc_expectation(suite, context):
     existing_types = [e.type for e in suite.expectations]
     if "expect_ohlc_consistency" not in existing_types:

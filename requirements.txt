@@ -6,3 +6,5 @@ python-dotenv
 pyyaml
 edgartools
 feedparser
+dbt-duckdb
+great-expectations

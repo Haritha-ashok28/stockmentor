@@ -7,7 +7,7 @@ from datetime import date
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source, check_freshness
+from validate import build_context, validate_source, check_freshness, check_partition_structure
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -83,6 +83,10 @@ def main():
     logger.info(f"Starting ingestion for {len(tickers)} tickers")
 
     gx_context = build_context()
+
+    if not check_partition_structure("financials"):
+        logger.error("Invalid partition structure detected in financials. Aborting ingestion.")
+        return
 
     successful = []
     quarantined = []

@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Allow imports from great_expectations/ folder
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source, check_freshness
+from validate import build_context, validate_source, check_freshness, check_partition_structure
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -39,6 +39,14 @@ def main():
     logger.info(f"Starting ingestion for {len(tickers)} tickers")
 
     gx_context = build_context()
+
+    # Validate existing partition structure once before ingestion
+    domains = ["stock_prices", "company_info"]
+
+    for domain in domains:
+        if not check_partition_structure(domain):
+            logger.error(f"Invalid partition structure detected in {domain}. Aborting ingestion.")
+            return
 
     successful = []
     quarantined = []
@@ -143,7 +151,7 @@ def save_price_history(hist, ticker_symbol):
         )
         folder.mkdir(parents=True, exist_ok=True)
         file_name = f"prices_{year}_{month:02d}_{date:02d}.parquet"
-        daily_data.to_parquet(folder/file_name)
+        daily_data.to_parquet(folder/file_name, index=False)
         logger.info(f"{ticker_symbol} {year}-{month:02d}-{date:02d} saved to {folder/file_name}")
 
 def save_company_info(info_df, ticker_symbol):
@@ -158,7 +166,7 @@ def save_company_info(info_df, ticker_symbol):
     )
     folder.mkdir(parents=True, exist_ok=True)
     file_name = f"info_{today.year}_{today.month:02d}_{today.day:02d}.parquet"
-    info_df.to_parquet(folder / file_name)
+    info_df.to_parquet(folder / file_name, index = False)
     logger.info(f"{ticker_symbol} company info snapshot saved to {folder/file_name}")
 
 if __name__ == "__main__":

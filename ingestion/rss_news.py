@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "great_expectations"))
-from validate import build_context, validate_source, check_freshness
+from validate import build_context, validate_source, check_freshness, check_partition_structure
 from quarantine import write_to_quarantine
 
 from utils import setup_logger, load_config
@@ -81,6 +81,10 @@ def main():
     logger.info(f"Starting ingestion for {len(tickers)} tickers")
 
     gx_context = build_context()
+
+    if not check_partition_structure("news"):
+        logger.error("Invalid partition structure detected in news. Aborting ingestion.")
+        return
 
     successful = []
     quarantined = []

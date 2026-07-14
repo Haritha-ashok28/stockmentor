@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: main
+    tables:
+      - name: stock_prices
+      - name: company_info
+      - name: financials
+      - name: news

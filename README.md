@@ -28,8 +28,8 @@ This is the one section updated as the project progresses, phase by phase.
 - [x] Bronze schema and partitioning strategy
 - [x] Source profiling and known-issue documentation
 - [x] Great Expectations validation layer
-- [ ] Airflow DAGs (3, one per source)
-- [ ] dbt silver models (cleaning, standardization, unit conversion)
+- [x] Airflow DAGs (3, one per source)
+- [x] dbt silver models (cleaning, standardization, unit conversion)
 - [ ] dbt gold models (health score, KPIs, company lookup)
 - [ ] Supabase serving layer
 - [ ] Lovable frontend integration

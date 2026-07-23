@@ -35,5 +35,5 @@ FROM
 {% if is_incremental() %}
 WHERE MAKE_DATE(year, CAST(month AS INT), CAST(date AS INT))> (SELECT MAX(snapshot_date) FROM {{ this }})
 {% endif %}
-
+    
 

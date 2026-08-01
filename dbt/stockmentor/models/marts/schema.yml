@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: mart_company
+    description: "Latest known snapshot of company fundamentals per ticker."
+    columns:
+      - name: ticker
+        data_tests:
+          - unique
+          - not_null
+      - name: sector
+        data_tests:
+          - not_null
+
+  - name: mart_health_score
+    description: "Composite 0-9 financial health score and label (Strong/Moderate/Weak) per ticker."
+    columns:
+      - name: ticker
+        data_tests:
+          - unique
+          - not_null
+      - name: total_score
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 9
+              config:
+                severity: warn
+      - name: health_label
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - Strong
+                  - Moderate
+                  - Weak

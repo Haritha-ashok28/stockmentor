@@ -5,7 +5,8 @@
     )
 }}
 
-SELECT 
+WITH price_detail as(
+    SELECT
     CAST(Open AS DOUBLE) as open_price,
     CAST(High AS DOUBLE) as high_price,
     CAST(Low AS DOUBLE) as low_price,
@@ -15,8 +16,9 @@ SELECT
     CAST("Stock Splits" AS DOUBLE) as stock_splits,
     CAST(ticker AS VARCHAR) as ticker,
     MAKE_DATE(year, CAST(month as INT), CAST(DATE AS INT)) as trade_date
-FROM
-{{source('bronze', 'stock_prices')}}
-{% if is_incremental() %}
-WHERE MAKE_DATE(year, CAST(month as INT), CAST(DATE AS INT)) > (SELECT MAX(trade_date) FROM {{ this }})
-{% endif %}
+    FROM
+    {{source('bronze', 'stock_prices')}}
+)
+SELECT *
+FROM price_detail
+{{ incremental_filter('trade_date') }}

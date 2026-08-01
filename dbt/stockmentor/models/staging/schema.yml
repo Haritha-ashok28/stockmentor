@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: stg_stock_prices
+    description: "Daily OHLCV price history per ticker, cast from raw bronze parquet."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - trade_date
+    columns:
+      - name: ticker
+        data_tests:
+          - not_null
+      - name: trade_date
+        data_tests:
+          - not_null
+      - name: close_price
+        data_tests:
+          - not_null
+
+  - name: stg_company_info
+    description: "Point-in-time snapshot of company fundamentals and valuation metrics per ticker."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - snapshot_date
+    columns:
+      - name: ticker
+        data_tests:
+          - not_null
+      - name: snapshot_date
+        data_tests:
+          - not_null
+      - name: sector
+        data_tests:
+          - not_null
+      - name: company_name
+        data_tests:
+          - not_null
+
+  - name: stg_financials
+    description: "Line items from SEC EDGAR income statement, balance sheet, and cash flow statement per ticker/fiscal year."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - fiscal_year
+              - statement
+              - label
+    columns:
+      - name: ticker
+        data_tests:
+          - not_null
+      - name: fiscal_year
+        data_tests:
+          - not_null
+      - name: statement
+        data_tests:
+          - not_null
+      - name: label
+        data_tests:
+          - not_null
+
+  - name: stg_news
+    description: "Deduplicated news articles per ticker from Yahoo Finance RSS. The same article/link can legitimately appear under multiple tickers (broad market news), so the grain is (ticker, article_id), not article_id alone."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - article_id
+    columns:
+      - name: article_id
+        data_tests:
+          - not_null
+      - name: ticker
+        data_tests:
+          - not_null
+      - name: published_at
+        data_tests:
+          - not_null

@@ -28,9 +28,11 @@ This is the one section updated as the project progresses, phase by phase.
 - [x] Bronze schema and partitioning strategy
 - [x] Source profiling and known-issue documentation
 - [x] Great Expectations validation layer
-- [x] Airflow DAGs (3, one per source)
 - [x] dbt silver models (cleaning, standardization, unit conversion)
-- [ ] dbt gold models (health score, KPIs, company lookup)
+- [x] dbt gold models: `company_lookup` (`mart_company`), `health_score` (`mart_health_score`)
+- [ ] dbt gold models: `price_history`, `news` (not yet built — needed before the price chart and news feed can work)
+- [x] dbt test suite: 36 tests (composite-key uniqueness, business-logic assertions, severity-tiered alerting) + SCD snapshot on company dimension
+- [x] Airflow DAGs (3, one per source, lineage-scoped incremental builds via `--select`)
 - [ ] Supabase serving layer
 - [ ] Lovable frontend integration
 
